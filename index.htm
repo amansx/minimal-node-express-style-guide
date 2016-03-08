@@ -24,35 +24,34 @@
 <h3>0.1: Exceptions and Errors</h3>
 <h4>Handle exceptions and error objects at all times</h4>
 <pre><code class="language-javascript">
-// Asynchronous errors, The WRONG way
-fs.open("file.txt", function (err, contents) {
-	console.log( contents );
-});
+	// Asynchronous errors, The WRONG way
+	fs.open("file.txt", function (err, contents) {
+		console.log( contents );
+	});
 
-// Asynchronous errors, The Right way
-fs.open("file.txt", function (err, contents) {
-	if (err) {
-		console.error("An error occurred!", err);
-	} else {
-		console.log(contents);
+	// Asynchronous errors, The Right way
+	fs.open("file.txt", function (err, contents) {
+		if (err) {
+			console.error("An error occurred!", err);
+		} else {
+			console.log(contents);
+		}
+	});
+
+	// Use Try-Catch for Synchronous Calls
+	try {
+		console.log("entering try block");
+		throw "thrown message";						// Synchronous Method Throws Error
+		console.log("this message is never seen");
 	}
-});
-
-// Use Try-Catch for Synchronous Calls
-try {
-	console.log("entering try block");
-	throw "thrown message";						// Synchronous Method Throws Error
-	console.log("this message is never seen");
-}
-catch (e) {
-	console.log("entering catch block");
-	console.log(e);
-	console.log("leaving catch block");
-}
-finally {
-	console.log("entering and leaving the finally block");
-}
-
+	catch (e) {
+		console.log("entering catch block");
+		console.log(e);
+		console.log("leaving catch block");
+	}
+	finally {
+		console.log("entering and leaving the finally block");
+	}
 </code></pre>
 <p>In most of the Node core APIs, try/catch cannot be used to properly handle exceptions for all others utilize try-catch. At project level handling errors needs to be a mandate.
 </p>
@@ -122,29 +121,29 @@ but double quotes are acceptable in config files and translation files</h4>
 <h3>1.4: Ternary Operators</h3>
 <h4> Single Line are fine as long as they are not too complex</h4>
 <pre><code class="language-javascript">
-// Not too elegant
-var foo = (a === b)
-		  ? 1
-		  : 2;
+	// Not too elegant
+	var foo = (a === b)
+			  ? 1
+			  : 2;
 
-// Too complex
-var foo = ( a === b ) ? bar : ( foo !==1 ? bar1 : a );
+	// Too complex
+	var foo = ( a === b ) ? bar : ( foo !==1 ? bar1 : a );
 
-// Simple and readable
-var foo = ( a === b ) ? 1 : 2;
+	// Simple and readable
+	var foo = ( a === b ) ? 1 : 2;
 
-// Simplify ternary when they are too complex
-var foo = ( a === b ) ? 
-		  bar : (
-		  	(foo !==1) ? bar1 : a
-		  );
+	// Simplify ternary when they are too complex
+	var foo = ( a === b ) ? 
+			  bar : (
+			  	(foo !==1) ? bar1 : a
+			  );
 
-// Or split into if-else-ternary (Remember: Can impact performance in loops though)
-if( a === b ){
-	foo = bar;
-}else{
-	foo = ( foo !== 1 ) ? bar1 : a;
-}
+	// Or split into if-else-ternary (Remember: Can impact performance in loops though)
+	if( a === b ){
+		foo = bar;
+	}else{
+		foo = ( foo !== 1 ) ? bar1 : a;
+	}
 </code></pre>
 <p>
 Single-line ternary operators are fine as long as they are not too complex in that case divide them into if-else blocks
@@ -175,32 +174,31 @@ Single-line ternary operators are fine as long as they are not too complex in th
 <h3>1.6: Closure Re-use</h3>
 <h4> Name the closures when possible</h4>
 <pre><code class="language-javascript">
-// Not so elegant
-req.on('end', function() {
-  console.log('losing');
-});
-
-// Not so elegant either
-setTimeout(function() {
-	client.connect(function() {
-		console.log('losing');
+	// Not so elegant
+	req.on('end', function() {
+	  console.log('losing');
 	});
-}, 1000);
 
-// Name the Closures/Functions
-var onConnectionEnd = function() {
-	console.log('winning');
-}
-req.on('end', onConnectionEnd);
+	// Not so elegant either
+	setTimeout(function() {
+		client.connect(function() {
+			console.log('losing');
+		});
+	}, 1000);
 
-//Similarly
-var afterConnect = function() {
-	console.log('winning');
-}
-setTimeout(function() {
-	client.connect( afterConnect );
-}, 1000);
+	// Name the Closures/Functions
+	var onConnectionEnd = function() {
+		console.log('winning');
+	}
+	req.on('end', onConnectionEnd);
 
+	//Similarly
+	var afterConnect = function() {
+		console.log('winning');
+	}
+	setTimeout(function() {
+		client.connect( afterConnect );
+	}, 1000);
 </code></pre>
 <p>Name your closures so they can be re-used and are easy to maintain</p>
 
@@ -212,48 +210,47 @@ setTimeout(function() {
 	The Function Comments Describing the function params and return type
 </h4>
 <pre><code class="language-javascript">
-/*
-Illustrates line wrapping for long param/return descriptions.
-  
-@param {string} guid
-Accepts GUID as a parameter, where guid is a 12 digit Hexadceimal number
-GUID is also a valid mongodb Object ID
+	/*
+	Illustrates line wrapping for long param/return descriptions.
+	  
+	@param {string} guid
+	Accepts GUID as a parameter, where guid is a 12 digit Hexadceimal number
+	GUID is also a valid mongodb Object ID
 
-@return {OBJECT} 
-{OBJECT}
-{ 
-	// Policy ID
-	pid: {NUMBER},
- 
-	// Persona ID
-	perID: 	{NUMBER}
-}
-*/
+	@return {OBJECT} 
+	{OBJECT}
+	{ 
+		// Policy ID
+		pid: {NUMBER},
+	 
+		// Persona ID
+		perID: 	{NUMBER}
+	}
+	*/
 
 
-/*
-Illustrates line wrapping for long param/return descriptions.
-  
-@param {string} guid
-Accepts GUID as a parameter, where guid is a 12 digit Hexadceimal number
-GUID is also a valid mongodb Object ID
+	/*
+	Illustrates line wrapping for long param/return descriptions.
+	  
+	@param {string} guid
+	Accepts GUID as a parameter, where guid is a 12 digit Hexadceimal number
+	GUID is also a valid mongodb Object ID
 
-@return {PROMISE} {OBJECT|ARRAY|NULL} 
-{OBJECT}
-{
-	gid : 			{NUMBER}, 
-	userDetails: 	{OBJECT},
-	userPersonaID: 	{NUMBER},
-	userPolicyID: 	{NUMBER}
-}
+	@return {PROMISE} {OBJECT|ARRAY|NULL} 
+	{OBJECT}
+	{
+		gid : 			{NUMBER}, 
+		userDetails: 	{OBJECT},
+		userPersonaID: 	{NUMBER},
+		userPolicyID: 	{NUMBER}
+	}
 
-{ARRAY} 
-returns an Array of gids
+	{ARRAY} 
+	returns an Array of gids
 
-{NULL}
-if promise fails returns NULL
-*/
-
+	{NULL}
+	if promise fails returns NULL
+	*/
 </code></pre>
 <p>
 	Customized JSDoc format for Function Commenting for the purpose of documentation
@@ -269,31 +266,31 @@ if promise fails returns NULL
 	UPPERCASE for Constants
 </h4>
 <pre><code class="language-javascript">
-// The Wrong Way for Variables/Properties/Functions
-//PHP/CodeIgniter Naming Convention (Don't Use in Node)
-var admin_user = req.session.body(..);
-// Pascal Case naming convention (Don't use for variables, properties or functions)
-var AdminUser = req.session.body(..);
-//JQuery Naming convention (Don't use in Node)
-var $adminUser = req.session.body(..);
+	// The Wrong Way for Variables/Properties/Functions
+	//PHP/CodeIgniter Naming Convention (Don't Use in Node)
+	var admin_user = req.session.body(..);
+	// Pascal Case naming convention (Don't use for variables, properties or functions)
+	var AdminUser = req.session.body(..);
+	//JQuery Naming convention (Don't use in Node)
+	var $adminUser = req.session.body(..);
 
 
-// The Right Way for Variables/Properties/Functions A.K.A. lowerCamelCase in Node and Javascript
-var adminUser = req.session.body(..);
-var myFunction = function(){};
-var myObj = {};
-myObj.myProperty = 123;
+	// The Right Way for Variables/Properties/Functions A.K.A. lowerCamelCase in Node and Javascript
+	var adminUser = req.session.body(..);
+	var myFunction = function(){};
+	var myObj = {};
+	myObj.myProperty = 123;
 
-//Classes
-var MyClass = App.factory('myFactory', function(){...});
+	//Classes
+	var MyClass = App.factory('myFactory', function(){...});
 
-//Constants
-var PI = 3.1415;
+	//Constants
+	var PI = 3.1415;
 
-// Or define constants in object (Remember: Object lookup is slower than variables though)
-var MATH_CONSTANTS = {
-	PHI : 1.618
-};
+	// Or define constants in object (Remember: Object lookup is slower than variables though)
+	var MATH_CONSTANTS = {
+		PHI : 1.618
+	};
 
 </code></pre>
 <p>
@@ -532,76 +529,76 @@ Example Log
 <h3>5.1: Objects vs closures</h3>
 <h4>Objects are faster than closures (but closures have their use cases so use wisely)</h4>
 <pre><code class="language-javascript">
-// Faster
-function ClassicObject() {
-	this.x = 10;
-}
-ClassicObject.prototype.getX = function () {
-	return this.x;
-};
-
-// Slower
-function ClosureObject() {
-	var x = 10; 	// Stored in context as it is used in closure below
-	return {
-		getX: function () {
-			return x;
-		}
+	// Faster
+	function ClassicObject() {
+		this.x = 10;
+	}
+	ClassicObject.prototype.getX = function () {
+		return this.x;
 	};
-}
+
+	// Slower
+	function ClosureObject() {
+		var x = 10; 	// Stored in context as it is used in closure below
+		return {
+			getX: function () {
+				return x;
+			}
+		};
+	}
 </code></pre>
 
 
 <h3>5.2: Objects vs Switch</h3>
 <h4>Objects are faster than the Switch Statement for large number of items</h4>
 <pre><code class="language-javascript">
-// Switch Statement slower than Objects Due to a large number of items and more jump statements
-switch (node.tagName) {
-  case goog.dom.TagName.APPLET:
-  case goog.dom.TagName.AREA:
-  case goog.dom.TagName.BR:
-  case goog.dom.TagName.COL:
-  case goog.dom.TagName.FRAME:
-  case goog.dom.TagName.HR:
-  case goog.dom.TagName.IMG:
-  case goog.dom.TagName.INPUT:
-  case goog.dom.TagName.IFRAME:
-  case goog.dom.TagName.ISINDEX:
-  case goog.dom.TagName.LINK:
-  case goog.dom.TagName.NOFRAMES:
-  case goog.dom.TagName.NOSCRIPT:
-  case goog.dom.TagName.META:
-  case goog.dom.TagName.OBJECT:
-  case goog.dom.TagName.PARAM:
-  case goog.dom.TagName.SCRIPT:
-  case goog.dom.TagName.STYLE:
-    return false;
-}
-return true;
+	// Switch Statement slower than Objects Due to a large number of items and more jump statements
+	switch (node.tagName) {
+	  case goog.dom.TagName.APPLET:
+	  case goog.dom.TagName.AREA:
+	  case goog.dom.TagName.BR:
+	  case goog.dom.TagName.COL:
+	  case goog.dom.TagName.FRAME:
+	  case goog.dom.TagName.HR:
+	  case goog.dom.TagName.IMG:
+	  case goog.dom.TagName.INPUT:
+	  case goog.dom.TagName.IFRAME:
+	  case goog.dom.TagName.ISINDEX:
+	  case goog.dom.TagName.LINK:
+	  case goog.dom.TagName.NOFRAMES:
+	  case goog.dom.TagName.NOSCRIPT:
+	  case goog.dom.TagName.META:
+	  case goog.dom.TagName.OBJECT:
+	  case goog.dom.TagName.PARAM:
+	  case goog.dom.TagName.SCRIPT:
+	  case goog.dom.TagName.STYLE:
+	    return false;
+	}
+	return true;
 
-var takesChildren = {}
-takesChildren[goog.dom.TagName.APPLET] = 1;
-takesChildren[goog.dom.TagName.AREA] = 1;
-...
+	var takesChildren = {}
+	takesChildren[goog.dom.TagName.APPLET] = 1;
+	takesChildren[goog.dom.TagName.AREA] = 1;
+	...
 
-// Performs Better than the Switch Statement
-return !takesChildren[node.tagName];
+	// Performs Better than the Switch Statement
+	return !takesChildren[node.tagName];
 </code></pre>
 
 <h3>5.3: Array Type</h3>
 <h4>Don't make V8 convert array type repeatedly</h4>
 <pre><code class="language-javascript">
-// Slower
-// V8 Has no idea about the Array type
-var a = new Array();
-a[0] = 77;			// Allocates the array as an Integer Array
-a[1] = 88;
-a[2] = 0.5;			// Allocates, converts to Double Array
-a[3] = true;		// Allocates, converts to an Array that supports booleans
+	// Slower
+	// V8 Has no idea about the Array type
+	var a = new Array();
+	a[0] = 77;			// Allocates the array as an Integer Array
+	a[1] = 88;
+	a[2] = 0.5;			// Allocates, converts to Double Array
+	a[3] = true;		// Allocates, converts to an Array that supports booleans
 
-// Faster
-// V8 Knows that this is an Array that will support multiple types and doesn't convert
-var a = [77, 88, 0.5, true];
+	// Faster
+	// V8 Knows that this is an Array that will support multiple types and doesn't convert
+	var a = [77, 88, 0.5, true];
 </code></pre>
 
 
