@@ -1,0 +1,642 @@
+<!doctype html>
+<html>
+<head>
+	<title>Minimal Node.js and Express.js Style Guide</title>
+	<link rel="stylesheet" href="syntax/prism.css" />
+	<link rel="stylesheet" href="styles/reset.css" />
+	<link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+
+<h2>
+	Minimal NodeJs/ExpressJs Style Guide and Project Structure by 
+	<a class="no-style white" target="_blank" href="http://anixir.com">Amanpreet Singh</a>
+</h2>
+
+<h3>Abstract</h3>
+<p>
+	This is a minimal and opinionated guide for writing consistent and productive Node.Js and Express.js code. It is inspired by what has proven to be a consistent way of structuring code and has worked well in other mature languages and frameworks.
+</p>
+
+
+<h2>Section 0: Standard</h2>
+
+<h3>0.1: Exceptions and Errors</h3>
+<h4>Handle exceptions and error objects at all times</h4>
+<pre><code class="language-javascript">
+// Asynchronous errors, The WRONG way
+fs.open("file.txt", function (err, contents) {
+	console.log( contents );
+});
+
+// Asynchronous errors, The Right way
+fs.open("file.txt", function (err, contents) {
+	if (err) {
+		console.error("An error occurred!", err);
+	} else {
+		console.log(contents);
+	}
+});
+
+// Use Try-Catch for Synchronous Calls
+try {
+	console.log("entering try block");
+	throw "thrown message";						// Synchronous Method Throws Error
+	console.log("this message is never seen");
+}
+catch (e) {
+	console.log("entering catch block");
+	console.log(e);
+	console.log("leaving catch block");
+}
+finally {
+	console.log("entering and leaving the finally block");
+}
+
+</code></pre>
+<p>In most of the Node core APIs, try/catch cannot be used to properly handle exceptions for all others utilize try-catch. At project level handling errors needs to be a mandate.
+</p>
+
+
+<h2>Section 1: Code Style</h2>
+
+<h3>1.1: Indentation</h3>
+<h4>Use Tabs for Indentation</h4>
+<ul>
+	<li>Designed for Indentation</li>
+	<li>Easier to Navigate through a codebase indented with Tabs (Hit left once instead of 2/4 times in case of spaces)</li>
+	<li>Takes Less File Space compared to Spaces</li>
+	<li>Better Productivity, reduces Typing</li>
+	<li>Works Out-of-the-box or No IDE configuration Necessary</li>
+	<li>Configurable in IDE for how wide you want it to look like</li>
+	<li>Easier to separate space and Indentation characters</li>
+</ul>
+<p> In Javascript Indentation is for aesthetics and makes your code more readable and hence should be implemented as such. It should not Impact space utlization or productivity</p>
+
+
+<h3>1.2: Double quotes or Single quotes</h3>
+<h4>Prefer Single Quotes (except in JSON) 
+but double quotes are acceptable in config files and translation files</h4>
+<pre><code class="language-javascript">
+	// Use of single quotes for variables
+	var requestType = 'POST';
+
+	// Acceptable use of double quotes in a js config file
+	var SAMPLE_DIALOGUE_EN = [
+		"learning the language as it's awesome!",
+		'and he proclaimed, "so it shall be!" ',
+	];
+
+</code></pre>
+<p> For a consistent codebase a mix of a double quotes and single quotes should be avoided
+</p>
+
+
+<h3>1.3 Braces</h3>
+<h4>Open Braces on the same line</h4>
+<pre><code class="language-javascript">
+	// Error prone and not readable
+	if (true)
+	{
+		console.log('winning');
+	}
+
+	// Returns undefined
+	return 
+	{
+		key: 'value'
+	}
+
+	// The right way
+	if (true) {
+		console.log('winning');
+	}
+
+	// Returns { key: 'value' }
+	return {
+		key: 'value'
+	}
+</code></pre>
+<p> The not-a-good-way consumes more space and can fail in certain scenerios</p>
+
+<h3>1.4: Ternary Operators</h3>
+<h4> Single Line are fine as long as they are not too complex</h4>
+<pre><code class="language-javascript">
+// Not too elegant
+var foo = (a === b)
+		  ? 1
+		  : 2;
+
+// Too complex
+var foo = ( a === b ) ? bar : ( foo !==1 ? bar1 : a );
+
+// Simple and readable
+var foo = ( a === b ) ? 1 : 2;
+
+// Simplify ternary when they are too complex
+var foo = ( a === b ) ? 
+		  bar : (
+		  	(foo !==1) ? bar1 : a
+		  );
+
+// Or split into if-else-ternary (Remember: Can impact performance in loops though)
+if( a === b ){
+	foo = bar;
+}else{
+	foo = ( foo !== 1 ) ? bar1 : a;
+}
+</code></pre>
+<p>
+Single-line ternary operators are fine as long as they are not too complex in that case divide them into if-else blocks
+</p>
+
+<h3>1.5: Variable Declarations</h3>
+<h4>Group Declarations when possible</h4>
+<pre><code class="language-javascript">
+	//Wastes Space, too much typing;
+	var PI  = 3.14159265;
+	var PHI = 1.618;
+
+	var HTTP_PORT  = 80;
+	var SSH_PORT   = 22;
+
+	//Better Way, Readable and concise (Group Logical Constants Together)
+	var PI 	= 3.14159265,
+		PHI = 1.618;
+
+	var HTTP_PORT = 80,
+		SSH_PORT  = 22;
+
+	var SERVER_A, SERVER_B;
+</code></pre>
+<p> Grouping Declarations when possible makes it easier to categorize Constants under categories, don't group  when the constants are not logically connected</p>
+
+
+<h3>1.6: Closure Re-use</h3>
+<h4> Name the closures when possible</h4>
+<pre><code class="language-javascript">
+// Not so elegant
+req.on('end', function() {
+  console.log('losing');
+});
+
+// Not so elegant either
+setTimeout(function() {
+	client.connect(function() {
+		console.log('losing');
+	});
+}, 1000);
+
+// Name the Closures/Functions
+var onConnectionEnd = function() {
+	console.log('winning');
+}
+req.on('end', onConnectionEnd);
+
+//Similarly
+var afterConnect = function() {
+	console.log('winning');
+}
+setTimeout(function() {
+	client.connect( afterConnect );
+}, 1000);
+
+</code></pre>
+<p>Name your closures so they can be re-used and are easy to maintain</p>
+
+
+<h2>Section 2: Documentation</h2>
+
+<h3>2.1: Function Comments</h3>
+<h4>
+	The Function Comments Describing the function params and return type
+</h4>
+<pre><code class="language-javascript">
+/*
+Illustrates line wrapping for long param/return descriptions.
+  
+@param {string} guid
+Accepts GUID as a parameter, where guid is a 12 digit Hexadceimal number
+GUID is also a valid mongodb Object ID
+
+@return {OBJECT} 
+{OBJECT}
+{ 
+	// Policy ID
+	pid: {NUMBER},
+ 
+	// Persona ID
+	perID: 	{NUMBER}
+}
+*/
+
+
+/*
+Illustrates line wrapping for long param/return descriptions.
+  
+@param {string} guid
+Accepts GUID as a parameter, where guid is a 12 digit Hexadceimal number
+GUID is also a valid mongodb Object ID
+
+@return {PROMISE} {OBJECT|ARRAY|NULL} 
+{OBJECT}
+{
+	gid : 			{NUMBER}, 
+	userDetails: 	{OBJECT},
+	userPersonaID: 	{NUMBER},
+	userPolicyID: 	{NUMBER}
+}
+
+{ARRAY} 
+returns an Array of gids
+
+{NULL}
+if promise fails returns NULL
+*/
+
+</code></pre>
+<p>
+	Customized JSDoc format for Function Commenting for the purpose of documentation
+</p>
+
+
+<h2>Section 3: Conventions</h2>
+
+<h3>3.1: Naming Conventions</h3>
+<h4>
+	lowerCamelCase for Variables, Properties and Functions <br />
+	UpperCamelCase for Classes<br />
+	UPPERCASE for Constants
+</h4>
+<pre><code class="language-javascript">
+// The Wrong Way for Variables/Properties/Functions
+//PHP/CodeIgniter Naming Convention (Don't Use in Node)
+var admin_user = req.session.body(..);
+// Pascal Case naming convention (Don't use for variables, properties or functions)
+var AdminUser = req.session.body(..);
+//JQuery Naming convention (Don't use in Node)
+var $adminUser = req.session.body(..);
+
+
+// The Right Way for Variables/Properties/Functions A.K.A. lowerCamelCase in Node and Javascript
+var adminUser = req.session.body(..);
+var myFunction = function(){};
+var myObj = {};
+myObj.myProperty = 123;
+
+//Classes
+var MyClass = App.factory('myFactory', function(){...});
+
+//Constants
+var PI = 3.1415;
+
+// Or define constants in object (Remember: Object lookup is slower than variables though)
+var MATH_CONSTANTS = {
+	PHI : 1.618
+};
+
+</code></pre>
+<p>
+Javascript uses Camelcase naming convention and is an industry standard so following that makes more sense as usually the camelcase is something most JS developers don't debate on and mostly stick to it.
+</p>
+
+
+<h3>3.2: ExpressJS Directory Structure & Naming Conventions</h3>
+<h4>
+	Models end with prefix Model <br />
+	Controllers end with prefix Controller <br />
+	Services end with prefix Service <br />
+	Utils use no prefix <br />
+</h4>
+<pre><code class="language-javascript">
+
+// Sample Project Structure
+//==========================
+
+SampleApp-Server/
+		- .git
+		- .gitignore
+		- package.json
+
+		- app.js  						// Cluster Master, our main file that runs server.js
+		- server.js 					// Cluster Node file
+		- config/
+				- base.js				// Base config file
+				- env/					// Environment specific config files
+					- development-e0.js
+					- development-e1.js
+					- production-e2.js
+					...
+		- bootstrap/
+				- clusterHealthMonitor.js
+				- customGarbageCollector.js
+				...
+		- routes/
+				- v1/
+					- homeRouter.js
+					...
+		- middlewares/
+				- session.js
+				- winston.js
+				...
+		- data/
+				- mockPznData.json
+				...
+		- models/
+				- userModel.js
+				...
+		- controllers/
+				- homeController.js
+				...
+		- services/
+				- pznDataService.js
+				...
+		- schemas/
+				- dataModelSchema/
+					- userSchema.js
+					...
+				- requestSchema/
+					- contentSchema.js
+					...
+				...
+		- utils/
+				- common/
+					- httpRequest.js
+					...
+				- formatConversion/
+					- pznXml2PznJson.js
+					...
+				- libs/
+					- amazonS3HMACGenerator.js
+					...
+		- tests/
+				...
+
+		- .gulpfile  					// Our Gulpfile
+
+</code></pre>
+
+
+<h2>Section 4: Logging</h2>
+
+<h3>4.1: What to log?</h3>
+<h4> Logging with Log Levels and Information Types</h4>
+<pre><code class="language-markdown">
+LOG LEVELS
+==================================================
+# DEVELOPMENT
+--------------------------------------------------
+	> INFO
+	> TRACE
+	> DEBUG
+	> WARN
+	> ERROR
+	> FATAL
+
+# PRODUCTION
+--------------------------------------------------
+	> INFO
+	> TRACE
+	> WARN
+	> ERROR
+	> FATAL
+
+INFORMATION TYPES
+==================================================
+# Standard Information
+--------------------------------------------------	
+	> Server Diagnostics information
+	> Uncaught/Global Exceptions and errors
+	> Client data
+	> Request Data
+	> Response Data
+	> Global warnings
+
+# Application Information
+--------------------------------------------------
+	> Datasource Activity
+	> Application Exceptions
+	> Application level warnings
+	> Page errors
+
+
+DESCRIPTIONS
+===================================================
+# Server Diagnostics information
+---------------------------------------------------
+	> [INFO] 	IP and Port server is listening on
+	> [INFO] 	The environment server is running in ( Development, Production etc.. )
+	> [DEBUG] 	Number of threads/nodes to be spawned
+	> [DEBUG] 	Number of file descriptors available (when applicable/available)
+
+# Uncaught/Global Exceptions and errors
+---------------------------------------------------
+	> [ERROR] 	Error/Exception Description
+	> [DEBUG] 	Error/Exception Stack Trace
+
+# Client's Info
+---------------------------------------------------
+	> [INFO]	Client's IP Address
+	> [DEBUG]	Client's Useragent
+
+# Request Data
+---------------------------------------------------
+	> [TRACE]	URL tried to be accessed
+	> [DEBUG]	Request Params *Masked*
+
+# Response Data
+---------------------------------------------------
+	> [DEBUG]	Response *masked*
+
+# Global warnings
+---------------------------------------------------
+	> [WARN]	Server running in development mode warning
+
+# Datasource Activity
+---------------------------------------------------
+	> [TRACE] 	Datasource activity description
+	> [DEBUG] 	SQL Queries, Mongo/Redis inserts, delete, update logs
+
+# Application Exceptions
+---------------------------------------------------
+	> [ERROR] 	Application-Level Error/Exception Description
+	> [DEBUG] 	Application-Level Error/Exception Stack Trace
+
+# Application level warnings
+---------------------------------------------------
+	> [WARN] 	Datasource not available
+
+# Page errors
+---------------------------------------------------
+	> [TRACE] 404, 500 ,... Errors
+
+</code></pre>
+
+
+
+<h3>4.2: Standard Logging Format</h3>
+<h4> Node/ExpressJS Style log format </h4>
+<pre><code class="language-markdown">
+Attributes (Followed by a separation character "-")
+====================================
+> SERVER_TIMESTAMP
+> CLUSTER_NODE_ID
+> LOG_LEVEL
+> EVENT_CODE 
+> SESSION_ID
+> MESSAGE
+
+Description	
+====================================
+# SERVER_TIMESTAMP
+Server Timestamp in local server time format (GMT or UTC) in ISO 8601 Format
+(Prefer to change server time to UTC if the logs are pulled to a central location for analysis)
+
+# CLUSTER_NODE_ID
+If Node is running in a clustered mode logging the node id helps to make sense of logs if all cluster nodes are logging in the same file or at the same time/standard output
+
+# LOG_LEVEL
+Log levels described above
+
+# EVENT_CODE
+Generic Event Codes such as DB, USER, MONGO
+
+# SESSION_ID
+When available log sesson id for the client making the request
+
+# MESSAGE
+Actual Message describing the event
+
+
+Example Log
+=====================================
+2016-03-07T22:19:52+00:00 - Master - info - APP - App Started
+2016-03-07T22:19:52+00:00 - Master - info - APP - Now listening at http://:::5000
+2016-03-07T22:19:52+00:00 - Master - info - APP - Running in development mode
+2016-03-07T22:19:52+00:00 - Master - debug - APP - Spawning Nodes : total 2 available cores
+2016-03-07T22:19:52+00:00 - Node 1 - debug - APP - Node 1 Alive
+2016-03-07T22:19:52+00:00 - Node 1 - debug - MONGO - Connection to Mongo successful
+2016-03-07T22:19:52+00:00 - Node 2 - debug - APP - Node 2 Alive
+2016-03-07T22:19:52+00:00 - Node 2 - debug - MONGO - Connection to Mongo successful
+2016-03-07T22:19:52+00:00 - Node 1 - info - SERVER - SESSION_ID_::asdf34j2kgjh4asf3ffdfg - Requested received from IP: 192.168.1.1
+2016-03-07T22:19:52+00:00 - Node 1 - trace - SERVER - SESSION_ID_::asdf34j2kgjh4asf3ffdfg - Requested for: /private/setPersona
+2016-03-07T22:19:52+00:00 - Node 1 - debug - SERVER - SESSION_ID_::asdf34j2kgjh4asf3ffdfg - Requested params: {"perid":"56d6131deac355c92351609f"}
+
+
+</code></pre>
+
+
+
+
+<h2>Section 5: V8 Optimized Coding (OPTIONAL)</h2>
+<h3>5.1: Objects vs closures</h3>
+<h4>Objects are faster than closures (but closures have their use cases so use wisely)</h4>
+<pre><code class="language-javascript">
+// Faster
+function ClassicObject() {
+	this.x = 10;
+}
+ClassicObject.prototype.getX = function () {
+	return this.x;
+};
+
+// Slower
+function ClosureObject() {
+	var x = 10; 	// Stored in context as it is used in closure below
+	return {
+		getX: function () {
+			return x;
+		}
+	};
+}
+</code></pre>
+
+
+<h3>5.2: Objects vs Switch</h3>
+<h4>Objects are faster than the Switch Statement for large number of items</h4>
+<pre><code class="language-javascript">
+// Switch Statement slower than Objects Due to a large number of items and more jump statements
+switch (node.tagName) {
+  case goog.dom.TagName.APPLET:
+  case goog.dom.TagName.AREA:
+  case goog.dom.TagName.BR:
+  case goog.dom.TagName.COL:
+  case goog.dom.TagName.FRAME:
+  case goog.dom.TagName.HR:
+  case goog.dom.TagName.IMG:
+  case goog.dom.TagName.INPUT:
+  case goog.dom.TagName.IFRAME:
+  case goog.dom.TagName.ISINDEX:
+  case goog.dom.TagName.LINK:
+  case goog.dom.TagName.NOFRAMES:
+  case goog.dom.TagName.NOSCRIPT:
+  case goog.dom.TagName.META:
+  case goog.dom.TagName.OBJECT:
+  case goog.dom.TagName.PARAM:
+  case goog.dom.TagName.SCRIPT:
+  case goog.dom.TagName.STYLE:
+    return false;
+}
+return true;
+
+var takesChildren = {}
+takesChildren[goog.dom.TagName.APPLET] = 1;
+takesChildren[goog.dom.TagName.AREA] = 1;
+...
+
+// Performs Better than the Switch Statement
+return !takesChildren[node.tagName];
+</code></pre>
+
+<h3>5.3: Array Type</h3>
+<h4>Don't make V8 convert array type repeatedly</h4>
+<pre><code class="language-javascript">
+// Slower
+// V8 Has no idea about the Array type
+var a = new Array();
+a[0] = 77;			// Allocates the array as an Integer Array
+a[1] = 88;
+a[2] = 0.5;			// Allocates, converts to Double Array
+a[3] = true;		// Allocates, converts to an Array that supports booleans
+
+// Faster
+// V8 Knows that this is an Array that will support multiple types and doesn't convert
+var a = [77, 88, 0.5, true];
+</code></pre>
+
+
+
+<h3>5.4: Good Articles</h3>
+<p>
+
+	<a class="no-style" href="http://mrale.ph/blog/2012/09/23/grokking-v8-closures-for-fun.html">
+		Grokking V8 closures for fun (and profit?)
+	</a><br />
+
+	<a class="no-style" href="http://blog.trevnorris.com/2013/08/long-live-callbacks.html">
+		Long Live Callbacks
+	</a><br />
+
+	<a class="no-style" href="http://neversaw.us/2013/09/04/on-the-performance-of-closures-in-v8/">
+		On the performance of closures in v8
+	</a><br />
+
+	<a class="no-style" href="http://www.sitepoint.com/google-closure-how-not-to-write-javascript/">
+		Google Closure: How not to write Javascript
+	</a><br />
+
+	<a class="no-style" href="https://toddmotto.com/deprecating-the-switch-statement-for-object-literals/">
+		Deprecating the switch statement for object literals
+	</a><br />
+
+	<a class="no-style" href="http://www.html5rocks.com/en/tutorials/speed/v8/">
+		Performance Tips for JavaScript in V8
+	</a><br />
+
+</p>
+
+
+<script src="syntax/prism.js"></script>
+
+</body>
+</html>
