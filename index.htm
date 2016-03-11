@@ -19,7 +19,7 @@
 </p>
 
 
-<h2>Section 0: Standard</h2>
+<h2>Section 0: Standard Guidelines</h2>
 
 <h3>0.1: Exceptions and Errors</h3>
 <h4>Handle exceptions and error objects at all times</h4>
@@ -55,6 +55,37 @@
 </code></pre>
 <p>In most of the Node core APIs, try/catch cannot be used to properly handle exceptions for all others utilize try-catch. At project level handling errors needs to be a mandate.
 </p>
+
+<h3>0.2: IIFE - Immediately Invoked Function Expressions </h3>
+<h4>
+	Safe to omit them in node, use node's module pattern
+</h4>
+<pre><code class="language-javascript">
+// Wrong
+// nodeService.js
+(function(){
+	
+	var getHttpData = function(){
+		console.log('My Data');
+	};
+	module.exports = getHttpData;
+
+})();
+
+
+// Better
+// nodeService.js
+var getHttpData = function(){
+	console.log('My Data');
+};
+module.exports = getHttpData;
+
+</code></pre>
+<p>
+	From NodeJS Documentation:<br />
+	"Variables local to the module will be private, as though the module was wrapped in a function"
+</p>
+
 
 
 <h2>Section 1: Code Style</h2>
@@ -201,6 +232,7 @@ Single-line ternary operators are fine as long as they are not too complex in th
 	}, 1000);
 </code></pre>
 <p>Name your closures so they can be re-used and are easy to maintain</p>
+
 
 
 <h2>Section 2: Documentation</h2>
